@@ -140,6 +140,32 @@ input.pslider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;backgro
 .pinerr{color:#e94560;font-size:12px;font-weight:600;min-height:16px;margin:6px 0 10px;}
 .pinbtn{padding:10px 28px;background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
 .footer{text-align:center;font-size:11px;color:rgba(255,255,255,.5);margin-top:1.5rem;padding-bottom:1rem;}
+
+/* charts */
+.ov-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:20px;align-items:start;}
+@media(max-width:560px){.ov-grid{grid-template-columns:1fr;}}
+.donut-wrap{position:relative;width:170px;height:170px;margin:8px auto 0;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.donut-num{font-size:30px;font-weight:800;color:var(--blue-dark);line-height:1;}
+.donut-lbl{font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;margin-top:12px;font-size:11px;color:var(--text-muted);font-weight:600;}
+.lg-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;}
+.chart-title{font-size:12px;font-weight:700;color:var(--text);margin:18px 0 8px;}
+.pbar-row{margin-bottom:14px;}
+.pbar-top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pbar-sub{color:var(--text-muted);font-weight:600;}
+.pbar-track{display:flex;height:14px;border-radius:20px;overflow:hidden;background:#e0ecf8;}
+.pbar-seg{height:100%;}
+.mbars{display:flex;align-items:flex-end;gap:10px;height:118px;}
+.mbar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+.mbar{width:100%;max-width:34px;border-radius:7px 7px 0 0;background:linear-gradient(180deg,#3a9fd4,var(--blue));}
+.mbar-val{font-size:11px;font-weight:800;color:var(--blue-dark);margin-bottom:3px;min-height:13px;}
+.mbar-lbl{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:5px;}
+/* days off */
+.bdg-who-b{background:#e1f5ee;color:#0f6e56;}
+.blk-item{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px;background:#f7fbff;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;}
+.blk-when{font-size:12px;font-weight:700;color:var(--text);flex:1;min-width:150px;}
+.blk-item .sdel{margin-left:0;}
 </style>
 </head>
 <body>
@@ -155,6 +181,17 @@ input.pslider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;backgro
     </div>
     <p>See what our team is currently working on &nbsp;&middot;&nbsp; Projects listed in queue order</p>
     <a class="back-link" href="https://davidngoun-art.github.io/aii-production-form/">&#8592; Back to Production Request Form</a>
+  </div>
+
+  <div class="sc" id="charts-card">
+    <div class="sl">Team workload at a glance</div>
+    <div id="charts"><div class="q-empty">&#x23F3; Loading charts&hellip;</div></div>
+  </div>
+
+  <div class="sc" id="blocks-card">
+    <div class="sl">Days off &amp; blocked dates</div>
+    <div id="blk-list"><div class="q-empty">&#x23F3; Loading&hellip;</div></div>
+    <button class="add-btn" onclick="needPin(openBlockModal)">+ Block a date (day off / editing day)</button>
   </div>
 
   <div class="sc">
@@ -257,7 +294,7 @@ input.pslider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;backgro
           </select>
         </div>
         <div class="mf">
-          <label class="ml">Deadline</label>
+          <label class="ml">Start Date</label>
           <input class="mi" id="af-dl" type="date"/>
         </div>
       </div>
@@ -268,6 +305,26 @@ input.pslider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;backgro
       <input type="hidden" id="af-who"/>
       <button class="mbtn" onclick="saveProject()">&#x2795; Add to Queue</button>
     </div>
+  </div>
+</div>
+
+<!-- BLOCK DATE MODAL -->
+<div class="moverlay" id="bmodal" onclick="if(event.target===this)closeBlockModal()">
+  <div class="mbox">
+    <button class="mclose" onclick="closeBlockModal()">&#x2715;</button>
+    <div class="mtitle">&#x1F6AB; Block a date</div>
+    <div class="mrow">
+      <div class="mf"><label class="ml">Who is off?</label>
+        <select class="ms" id="bk-who"><option value="david">David</option><option value="sitha">Sitha</option><option value="both">Both</option></select></div>
+      <div class="mf"><label class="ml">How long?</label>
+        <select class="ms" id="bk-part"><option value="full">Full day</option><option value="morning">Morning only</option><option value="afternoon">Afternoon only</option></select></div>
+    </div>
+    <div class="mrow">
+      <div class="mf"><label class="ml">From *</label><input class="mi" type="date" id="bk-from"/></div>
+      <div class="mf"><label class="ml">To (optional)</label><input class="mi" type="date" id="bk-to"/></div>
+    </div>
+    <div class="mf"><label class="ml">Note (optional)</label><input class="mi" id="bk-note" placeholder="e.g. Editing day, annual leave"/></div>
+    <button class="mbtn" id="bk-save" onclick="saveBlock()">Block date</button>
   </div>
 </div>
 
@@ -304,6 +361,7 @@ function loadQueue(){
           };
         });
         refreshCounts();
+        renderCharts();
         // Re-render any open panel
         ['david','sitha','done'].forEach(function(w){
           var p=document.getElementById('qpanel-'+w);
@@ -494,7 +552,7 @@ function checkPin(){
   if(v===getPin()){
     pinOk=true;
     document.getElementById('pin-screen').style.display='none';
-    if(pendingFn){closeModal();var fn=pendingFn;pendingFn=null;fn();}
+    if(pendingFn){var fn=pendingFn;closeModal();pendingFn=null;fn();}
     else if(modalFor){
       document.getElementById('add-screen').style.display='';
       document.getElementById('af-who').value=modalFor;
@@ -511,24 +569,199 @@ function saveProject(){
   var proj=document.getElementById('af-proj').value.trim();
   if(!req){alert('Please enter the requester name.');return;}
   if(!proj){alert('Please enter the project name.');return;}
+  var startDate=document.getElementById('af-dl').value;
+  var typeVal=document.getElementById('af-type').value;
+  var dept=document.getElementById('af-dept').value.trim();
   var data={
-    name:req, projectTitle:proj,
+    name:req,
+    projectTitle:proj,
     teamRequested:modalFor==='david'?'David Ngoun':'Sitha Eang',
-    coverageType:document.getElementById('af-type').value,
-    eventDeadline:document.getElementById('af-dl').value,
-    department:document.getElementById('af-dept').value.trim()
+    coverageType:typeVal,
+    startDate:startDate,
+    eventDeadline:startDate,
+    department:dept,
+    manual:true
   };
+  // Add to queue sheet
   fetch(SHEET_URL+'?action=addQueue&data='+encodeURIComponent(JSON.stringify(data)))
+    .then(function(){
+      // Also add to Google Calendar
+      return fetch(SHEET_URL+'?action=addCalendar&data='+encodeURIComponent(JSON.stringify(data)));
+    })
     .then(function(){
       closeModal();
       loadQueue();
       ['af-req','af-proj','af-dl','af-dept'].forEach(function(id){document.getElementById(id).value='';});
     })
-    .catch(function(e){console.log(e);});
+    .catch(function(e){
+      // Still close and reload even if calendar fails
+      closeModal();
+      loadQueue();
+      ['af-req','af-proj','af-dl','af-dept'].forEach(function(id){document.getElementById(id).value='';});
+      console.log('Calendar add error:',e);
+    });
 }
 
 // Init
 loadQueue();
+loadBlocks();
+
+// ── CHARTS ────────────────────────────────────────────────
+var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+
+function donutSVG(segs, total){
+  var r = 70, c = 2 * Math.PI * r, off = 0;
+  var out = '<svg viewBox="0 0 170 170" width="170" height="170" style="transform:rotate(-90deg)"><circle cx="85" cy="85" r="' + r + '" fill="none" stroke="#e0ecf8" stroke-width="22"/>';
+  if (total > 0) {
+    segs.forEach(function(s){
+      if (!s.v) return;
+      var len = c * s.v / total;
+      out += '<circle cx="85" cy="85" r="' + r + '" fill="none" stroke="' + s.color + '" stroke-width="22" stroke-dasharray="' + len.toFixed(2) + ' ' + (c - len).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '"/>';
+      off += len;
+    });
+  }
+  return out + '</svg>';
+}
+
+function renderCharts(){
+  var el = document.getElementById('charts');
+  if (!el) return;
+  var C = { idle: '#f0c070', inprog: '#2567a0', done: '#27ae60' };
+  var cnt = { idle: 0, inprog: 0, done: 0 };
+  var per = { david: { idle: 0, inprog: 0, done: 0 }, sitha: { idle: 0, inprog: 0, done: 0 } };
+  allProjects.forEach(function(p){
+    var k = p.status === 'done' ? 'done' : p.status === 'inprog' ? 'inprog' : 'idle';
+    cnt[k]++;
+    if (per[p.person]) per[p.person][k]++;
+  });
+  var total = allProjects.length;
+
+  var html = '<div class="ov-grid"><div>';
+  html += '<div class="chart-title" style="margin-top:0;text-align:center">All projects by status</div>';
+  html += '<div class="donut-wrap">' + donutSVG([{ v: cnt.idle, color: C.idle }, { v: cnt.inprog, color: C.inprog }, { v: cnt.done, color: C.done }], total)
+       + '<div class="donut-center"><div class="donut-num">' + total + '</div><div class="donut-lbl">projects</div></div></div>';
+  html += '<div class="legend">'
+       + '<span><i class="lg-dot" style="background:' + C.idle + '"></i>Not started ' + cnt.idle + '</span>'
+       + '<span><i class="lg-dot" style="background:' + C.inprog + '"></i>In progress ' + cnt.inprog + '</span>'
+       + '<span><i class="lg-dot" style="background:' + C.done + '"></i>Done ' + cnt.done + '</span></div>';
+  html += '</div><div>';
+
+  var maxT = 1;
+  ['david', 'sitha'].forEach(function(w){ var o = per[w], t = o.idle + o.inprog + o.done; if (t > maxT) maxT = t; });
+  html += '<div class="chart-title" style="margin-top:0">Workload per person</div>';
+  ['david', 'sitha'].forEach(function(w){
+    var o = per[w], active = o.idle + o.inprog;
+    var seg = function(n, color){ return n ? '<div class="pbar-seg" style="width:' + (n / maxT * 100).toFixed(1) + '%;background:' + color + '"></div>' : ''; };
+    html += '<div class="pbar-row"><div class="pbar-top"><span>' + (w === 'david' ? 'David' : 'Sitha') + '</span><span class="pbar-sub">' + active + ' active &middot; ' + o.done + ' done</span></div>'
+         + '<div class="pbar-track">' + seg(o.inprog, C.inprog) + seg(o.idle, C.idle) + seg(o.done, C.done) + '</div></div>';
+  });
+
+  var now = new Date(), months = [];
+  for (var i = 5; i >= 0; i--) {
+    var d0 = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ key: d0.getFullYear() + '-' + pad2(d0.getMonth() + 1), lbl: MON_SHORT[d0.getMonth()], n: 0 });
+  }
+  allProjects.forEach(function(p){
+    var d = new Date(p.addedAt);
+    if (isNaN(d.getTime())) return;
+    var k = d.getFullYear() + '-' + pad2(d.getMonth() + 1);
+    for (var j = 0; j < months.length; j++) { if (months[j].key === k) months[j].n++; }
+  });
+  var maxM = 1;
+  months.forEach(function(m){ if (m.n > maxM) maxM = m.n; });
+  html += '<div class="chart-title">Requests added per month</div><div class="mbars">';
+  months.forEach(function(m){
+    var ht = m.n ? Math.max(Math.round(m.n / maxM * 80), 4) : 2;
+    html += '<div class="mbar-col"><div class="mbar-val">' + (m.n || '') + '</div><div class="mbar" style="height:' + ht + 'px"></div><div class="mbar-lbl">' + m.lbl + '</div></div>';
+  });
+  html += '</div></div></div>';
+  el.innerHTML = html;
+}
+
+// ── DAYS OFF / BLOCKED DATES ──────────────────────────────
+var blocks = [];
+
+function loadBlocks(){
+  fetch(SHEET_URL + '?action=getBlocked')
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res.status === 'success') { blocks = res.data || []; renderBlocks(); }
+      else { document.getElementById('blk-list').innerHTML = '<div class="q-empty">Could not load days off.</div>'; }
+    })
+    .catch(function(){ var e = document.getElementById('blk-list'); if (e) e.innerHTML = '<div class="q-empty">Could not load days off.</div>'; });
+}
+
+function renderBlocks(){
+  var el = document.getElementById('blk-list');
+  if (!el) return;
+  if (!blocks.length) { el.innerHTML = '<div class="q-empty">&#x2705; No days off or blocked dates coming up.</div>'; return; }
+  var groups = [], byId = {};
+  blocks.forEach(function(b){
+    var g = byId[b.id];
+    if (!g) { g = { id: b.id, person: b.person, part: b.part, dates: [] }; byId[b.id] = g; groups.push(g); }
+    g.dates.push(b.date);
+  });
+  var html = '';
+  groups.slice(0, 12).forEach(function(g){
+    var first = g.dates[0], last = g.dates[g.dates.length - 1];
+    var when = first === last ? fmtDate(first) : fmtDate(first) + ' \u2192 ' + fmtDate(last);
+    var wc = g.person === 'david' ? 'bdg-who-d' : g.person === 'sitha' ? 'bdg-who-s' : 'bdg-who-b';
+    var wn = g.person === 'david' ? 'David' : g.person === 'sitha' ? 'Sitha' : 'David &amp; Sitha';
+    var pl = g.part === 'full' ? 'Full day' : g.part === 'morning' ? 'Morning only' : 'Afternoon only';
+    html += '<div class="blk-item"><div class="blk-when">&#x1F4C5; ' + when + '</div><span class="bdg ' + wc + '">' + wn + '</span><span class="bdg bdg-d">' + pl + '</span>'
+         + '<button class="sbtn sdel" data-id="' + esc(g.id) + '" onclick="doDelBlock(this)">&#x1F5D1;&#xFE0F;</button></div>';
+  });
+  if (groups.length > 12) html += '<div class="q-empty">+ ' + (groups.length - 12) + ' more</div>';
+  el.innerHTML = html;
+}
+
+function openBlockModal(){
+  var t = new Date();
+  document.getElementById('bk-from').value = t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
+  document.getElementById('bk-to').value = '';
+  document.getElementById('bk-note').value = '';
+  document.getElementById('bmodal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeBlockModal(){
+  document.getElementById('bmodal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function saveBlock(){
+  var from = document.getElementById('bk-from').value;
+  var to   = document.getElementById('bk-to').value;
+  if (!from) { alert('Please choose the date.'); return; }
+  if (to && to < from) { alert('The "To" date cannot be before the "From" date.'); return; }
+  var btn = document.getElementById('bk-save');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  var data = {
+    person: document.getElementById('bk-who').value,
+    part:   document.getElementById('bk-part').value,
+    date: from, endDate: to,
+    reason: document.getElementById('bk-note').value.trim()
+  };
+  fetch(SHEET_URL + '?action=addBlock&data=' + encodeURIComponent(JSON.stringify(data)))
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      btn.disabled = false; btn.textContent = 'Block date';
+      if (res.status === 'success') { closeBlockModal(); loadBlocks(); }
+      else { alert('Could not block the date: ' + (res.message || 'unknown error')); }
+    })
+    .catch(function(){ btn.disabled = false; btn.textContent = 'Block date'; alert('Could not reach Google. Please try again.'); });
+}
+
+function doDelBlock(btn){
+  var id = btn.getAttribute('data-id');
+  needPin(function(){
+    if (!confirm('Remove this block from the calendar?')) return;
+    fetch(SHEET_URL + '?action=removeBlock&id=' + encodeURIComponent(id))
+      .then(function(r){ return r.json(); })
+      .then(function(res){ if (res.status !== 'success') alert('Could not remove it: ' + (res.message || '')); loadBlocks(); })
+      .catch(function(){ alert('Could not reach Google. Please try again.'); });
+  });
+}
 </script>
 </body>
 </html>
